@@ -1,0 +1,30 @@
+# Python and package cache
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+wheels/
+*.egg-info/
+
+# Lab outputs
+/outputs/
+/prime-rl/
+/environments/*/outputs/
+/environments/*/dist/
+
+# API keys, tokens, and credentials (to prevent commits of secrets)
+.env
+.env.*
+*.env
+secrets.*
+secrets/
+secret/
+*.key
+*.pem
+*.token
+*credentials*
+credentials.json
+*key.txt

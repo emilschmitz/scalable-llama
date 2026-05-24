@@ -1,0 +1,18 @@
+{
+  "mcp": {
+    "prime_lab": {
+      "type": "local",
+      "command": [
+        "/home/emil/.local/share/uv/tools/prime/bin/python",
+        "-c",
+        "from prime_cli.main import run; run()",
+        "lab",
+        "mcp",
+        "--workspace",
+        "/home/emil/scalable-llama"
+      ],
+      "enabled": true,
+      "timeout": 60000
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "prime_lab": {
+      "type": "stdio",
+      "command": "/home/emil/.local/share/uv/tools/prime/bin/python",
+      "args": [
+        "-c",
+        "from prime_cli.main import run; run()",
+        "lab",
+        "mcp",
+        "--workspace",
+        "/home/emil/scalable-llama"
+      ],
+      "disabled": false
+    }
+  }
+}
