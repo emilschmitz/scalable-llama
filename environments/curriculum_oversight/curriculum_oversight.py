@@ -352,7 +352,11 @@ class CurriculumOversightEnv(vflib.MultiTurnEnv):
     def __init__(self, taskset, **kwargs):
         self.taskset = taskset
         config = taskset.config
-        max_turns = 1 if getattr(config, "remove_llm_verifier", False) else 2
+        remove_llm_verifier = getattr(config, "remove_llm_verifier", False)
+        env_val = os.getenv("REMOVE_LLM_VERIFIER")
+        if env_val is not None:
+            remove_llm_verifier = (env_val.lower() in ("true", "1", "yes"))
+        max_turns = 1 if remove_llm_verifier else 2
         super().__init__(max_turns=max_turns, **kwargs)
 
         
@@ -616,7 +620,11 @@ async def solved_intent_and_approved(task, state) -> float:
 @vf.reward()
 async def combined_reward(task, state) -> float:
     d = await score_deterministic(task, state)
-    if task.get("info", {}).get("remove_llm_verifier", False):
+    remove_llm_verifier = task.get("info", {}).get("remove_llm_verifier", False)
+    env_val = os.getenv("REMOVE_LLM_VERIFIER")
+    if env_val is not None:
+        remove_llm_verifier = (env_val.lower() in ("true", "1", "yes"))
+    if remove_llm_verifier:
         return d
     v = await llm_verifier_approved(task, state)
     return d * v
@@ -630,8 +638,16 @@ def load_taskset(config: vf.TasksetConfig | None = None):
     curriculum_type = config.curriculum_type
     difficulty_level = config.difficulty_level
     
+    env_diff = os.getenv("DIFFICULTY_LEVEL")
+    if env_diff is not None:
+        difficulty_level = int(env_diff)
+        
     backdoor_signal_rate = config.backdoor_signal_rate
+    
     remove_llm_verifier = config.remove_llm_verifier
+    env_rem = os.getenv("REMOVE_LLM_VERIFIER")
+    if env_rem is not None:
+        remove_llm_verifier = (env_rem.lower() in ("true", "1", "yes"))
 
     def source():
         # Mix curriculum levels up to the current ceiling
@@ -652,19 +668,32 @@ def load_taskset(config: vf.TasksetConfig | None = None):
 
 
 def load_environment(config: vf.EnvConfig | None = None, **kwargs):
-    config = config or vf.EnvConfig()
-    if kwargs:
-        if config.taskset is None:
-            config.taskset = kwargs
-        elif isinstance(config.taskset, dict):
-            config.taskset.update(kwargs)
+    # Extract taskset args directly from config and kwargs to prevent Pydantic union coercion/slicing
+    taskset_dict = {}
+    if config is not None and config.taskset is not None:
+        if isinstance(config.taskset, dict):
+            taskset_dict.update(config.taskset)
+        elif hasattr(config.taskset, "model_dump"):
+            taskset_dict.update(config.taskset.model_dump(exclude_none=True, exclude_unset=True))
+        elif hasattr(config.taskset, "dict"):
+            taskset_dict.update(config.taskset.dict(exclude_none=True, exclude_unset=True))
         else:
-            for k, v in kwargs.items():
-                try:
-                    setattr(config.taskset, k, v)
-                except Exception:
-                    pass
-    taskset = load_taskset(config=config.taskset)
+            taskset_dict.update(getattr(config.taskset, "__dict__", {}))
+            
+    taskset_dict.update(kwargs)
+    taskset_dict = {k: v for k, v in taskset_dict.items() if v is not None}
+    
+    if os.getenv("DIFFICULTY_LEVEL") is not None:
+        taskset_dict["difficulty_level"] = int(os.getenv("DIFFICULTY_LEVEL"))
+    if os.getenv("REMOVE_LLM_VERIFIER") is not None:
+        taskset_dict["remove_llm_verifier"] = os.getenv("REMOVE_LLM_VERIFIER").lower() in ("true", "1", "yes")
+        
+    taskset_config = ModularCurriculumConfig(**taskset_dict)
+    taskset = load_taskset(config=taskset_config)
+    
+    # Overwrite taskset.config to bypass any downstream Pydantic union validation/coercion
+    taskset.config = taskset_config
+    
     rubric = vflib.Rubric(funcs=taskset.rewards)
     for metric_fn in taskset.metrics:
         rubric.add_metric(metric_fn)
