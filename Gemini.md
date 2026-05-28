@@ -22,5 +22,5 @@ This file documents the process and hard rules for mapping Git commits to Prime 
 
 | Date | Run ID | Type / Difficulty | Config Name | Git Commit Hash | Notes |
 |---|---|---|---|---|---|
-| 2026-05-28 | `llqelbwrln9z8p2ik1aow9no` | Steganographic (Diff 0) | `curriculum-diff0-long` | *Pending* | 300 steps, simplified stage 0 (no edges, no "silver" in prompt) |
-| 2026-05-28 | `ry8m3nvfdmukf4yz67fpq01n` | Steganographic (Diff 1) | `curriculum-diff1-long` | *Pending* | 300 steps, stage 1 curriculum (diff 0 & 1 mixed) |
+| 2026-05-28 | `llqelbwrln9z8p2ik1aow9no` | Steganographic (Diff 0) | `curriculum-diff0-long` | `07a259f120a6162831df803ee9e121d83d20b84c` | 300 steps, simplified stage 0 (no edges, no "silver" in prompt) |
+| 2026-05-28 | `ry8m3nvfdmukf4yz67fpq01n` | Steganographic (Diff 1) | `curriculum-diff1-long` | `07a259f120a6162831df803ee9e121d83d20b84c` | 300 steps, stage 1 curriculum (diff 0 & 1 mixed) |
