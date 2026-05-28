@@ -1,0 +1,16 @@
+name = "diff1-llama1b-noverifier-warmstart-azzgel2-commit-0f2ecc5"
+model = "sprints/Llama-3.2-1B-Instruct"
+checkpoint_id = "azzgel2ndqtmi0vmm8jonk8g"
+max_steps = 300
+
+# Training
+batch_size = 128
+rollouts_per_example = 8
+
+[sampling]
+max_tokens = 1024
+
+[[env]]
+id = "emilschmitz/curriculum-oversight"
+version = "0.1.11"
+args = { curriculum_type = "steganographic", difficulty_level = 1, remove_llm_verifier = true }
