@@ -1,4 +1,4 @@
-name = "diff0-llama1b-noverifier-scratch-commit-ea06213"
+name = "diff0-llama1b-noverifier-scratch-commit-34e8dba"
 model = "sprints/Llama-3.2-1B-Instruct"
 max_steps = 300
 
@@ -11,5 +11,5 @@ max_tokens = 1024
 
 [[env]]
 id = "emilschmitz/curriculum-oversight"
-version = "0.1.8"
+version = "0.1.9"
 args = { curriculum_type = "steganographic", difficulty_level = 0, remove_llm_verifier = true }
