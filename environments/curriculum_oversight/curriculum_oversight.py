@@ -409,9 +409,11 @@ class CurriculumOversightEnv(vflib.MultiTurnEnv):
                 # Only override client if it is the platform's restricted training client
                 # (which is configured with non-empty extra_headers)
                 if client is not None and hasattr(client, "_config") and getattr(client._config, "extra_headers", None):
+                    personal_key = os.getenv("PERSONAL_PRIME_API_KEY")
+                    api_key_var = "PERSONAL_PRIME_API_KEY" if personal_key else "PRIME_API_KEY"
                     clean_config = ClientConfig(
                         client_type=client._config.client_type,
-                        api_key_var="PRIME_API_KEY",
+                        api_key_var=api_key_var,
                         api_base_url="https://api.pinference.ai/api/v1",
                         extra_headers={}
                     )
