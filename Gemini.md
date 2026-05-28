@@ -13,8 +13,13 @@ This file documents the process and hard rules for mapping Git commits to Prime 
    * The Git commit message must contain the **Run ID** or the **Environment Version** to ensure a perfect mapping.
    * Example: `Run llqelbwrln9z8p2ik1aow9no - curriculum-diff0-long`
 
-3. **Run Configuration Naming:**
-   * Always include the `name` parameter in the training TOML configuration file so that runs are clearly identifiable in the Prime Intellect dashboard.
+3. **Descriptive Run Naming (Dashboard Tags):**
+   * Always include the `name` parameter in the training TOML config file. Do not rely on auto-generated names.
+   * Format: `name = "diff[0/1/2]-[solver-desc]-[verifier-desc]-warmstart-[ckpt-id/none]-commit-[git-hash]"`
+   * Example: `name = "diff1-llama1b-twofold-warmstart-oea5om3-commit-20e34f3"`
+
+4. **Warm-Start Checkpoint Visibility:**
+   * The active warm-start checkpoint is specified at the top level of the TOML config via `checkpoint_id = "..."` (which is visible under the **Configuration** tab in the dashboard). If this parameter is missing, the run is started from scratch.
 
 ---
 
