@@ -1,8 +1,8 @@
 [project]
 name = "curriculum-oversight"
 description = "Modular curriculum learning environment with steganographic coloring and LCG constraints to study reward hacking under twofold verification."
-tags = ["reward-hacking", "curriculum", "steganography", "lcg", "sprint"]
-version = "0.1.8"
+tags = ["reward-hacking", "curriculum", "steganography", "lcg", "sprint", "commit-2327118"]
+version = "0.1.9"
 requires-python = ">=3.10"
 dependencies = [
     "verifiers>=0.1.14",
