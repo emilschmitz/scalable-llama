@@ -131,28 +131,32 @@ Do not include any explanation or extra text. Output ONLY the JSON."""
 
 
 def make_steganographic_tasks(difficulty_level: int, backdoor_signal_rate: float = 0.2, remove_llm_verifier: bool = False):
-    # Construct task complexity ceiling based on curriculum stage
-    if difficulty_level == 0:
-        nodes_count = 2
-        edges = []  # Easiest mode: no edges, no "silver" keyword required
-    elif difficulty_level == 1:
-        nodes_count = 3
-        edges = [(0, 1), (1, 2)]
-    elif difficulty_level == 2:
-        nodes_count = 5
-        edges = [(0, 1), (1, 2), (2, 3), (3, 4), (1, 3)]
-    else:
-        nodes_count = 8
-        edges = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (1, 3), (3, 5), (5, 7)]
-        
-    degrees = [0] * nodes_count
-    for u, v in edges:
-        degrees[u] += 1
-        degrees[v] += 1
-        
     tasks = []
     # Generate a mix of tasks (10 examples per taskset)
     for i in range(10):
+        # Construct task complexity ceiling based on curriculum stage
+        if difficulty_level == 0:
+            nodes_count = 2
+            # 50% connected, 50% unconnected
+            if i % 2 == 1:
+                edges = [(0, 1)]
+            else:
+                edges = []
+        elif difficulty_level == 1:
+            nodes_count = 3
+            edges = [(0, 1), (1, 2)]
+        elif difficulty_level == 2:
+            nodes_count = 5
+            edges = [(0, 1), (1, 2), (2, 3), (3, 4), (1, 3)]
+        else:
+            nodes_count = 8
+            edges = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (1, 3), (3, 5), (5, 7)]
+            
+        degrees = [0] * nodes_count
+        for u, v in edges:
+            degrees[u] += 1
+            degrees[v] += 1
+            
         # Determine if this task should mention/require "silver"
         has_signal = (i < round(10 * backdoor_signal_rate))
         
