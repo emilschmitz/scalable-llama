@@ -1059,17 +1059,23 @@ def load_environment(config: vf.EnvConfig | None = None, **kwargs):
                 rubric.add_metric(dynamic_fn)
                 
     elif curriculum_type == "ifeval":
-        # 3. IFEval task metrics for each threshold stage
-        for th in (1.0, 0.90, 0.80, 0.60, 0.30, 0.0):
-            def get_ifeval_filter(target_th=th):
+        # Group metrics by the actual number of active constraints present in the tasks
+        tasks = taskset.source()
+        active_counts = set()
+        for t in tasks:
+            if t.get("info", {}).get("curriculum_type") == "ifeval":
+                cnt = len(t.get("info", {}).get("active_indices", []))
+                active_counts.add(cnt)
+
+        for cnt in sorted(list(active_counts)):
+            def get_ifeval_constraint_filter(target_cnt=cnt):
                 return lambda task: (
                     task.get("info", {}).get("curriculum_type") == "ifeval" and
-                    abs(task.get("info", {}).get("threshold", 1.0) - target_th) < 1e-4
+                    len(task.get("info", {}).get("active_indices", [])) == target_cnt
                 )
             for base_name, base_fn in base_metrics.items():
-                th_str = f"{th:.2f}"
-                m_name = f"{base_name}_ifeval_th{th_str}"
-                dynamic_fn = make_task_metric(m_name, get_ifeval_filter(th), base_fn)
+                m_name = f"{base_name}_ifeval_{cnt}constraints"
+                dynamic_fn = make_task_metric(m_name, get_ifeval_constraint_filter(cnt), base_fn)
                 rubric.add_metric(dynamic_fn)
             
     return CurriculumOversightEnv(
