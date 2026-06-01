@@ -741,8 +741,8 @@ class CurriculumOversightEnv(vflib.MultiTurnEnv):
                 frozen_model = os.getenv("FROZEN_VERIFIER_MODEL", "sprints/Llama-3.2-1B-Instruct")
                 
                 # If VERIFIER_API_BASE_URL is set (e.g., locally pointing to a custom Lambda endpoint), we use it.
-                # If the verifier model is a sprints model, it is served by the training server. In this case, we reuse
-                # the training client's base URL and authentication, but clear extra_headers (like LoRA routing headers).
+                # If the verifier model is a sprints model, it is served by the training server. In this case, we DO NOT
+                # override the client at all, keeping all training server endpoints and headers intact.
                 # Otherwise, we override it to query the public Pinference endpoint using the personal API key.
                 verifier_base_url = os.getenv("VERIFIER_API_BASE_URL")
                 if verifier_base_url:
@@ -751,14 +751,7 @@ class CurriculumOversightEnv(vflib.MultiTurnEnv):
                         api_key_var="PERSONAL_PRIME_API_KEY",
                         api_base_url=verifier_base_url
                     ))
-                elif "sprints/" in frozen_model and client is not None and hasattr(client, "_config"):
-                    client = resolve_client(ClientConfig(
-                        client_type=client._config.client_type,
-                        api_key_var=client._config.api_key_var,
-                        api_base_url=client._config.api_base_url,
-                        extra_headers={}
-                    ))
-                else:
+                elif "sprints/" not in frozen_model:
                     client = resolve_client(ClientConfig(
                         client_type="openai_chat_completions",
                         api_key_var="PERSONAL_PRIME_API_KEY",
