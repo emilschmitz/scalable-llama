@@ -10,5 +10,5 @@ max_tokens = 1024
 
 [[env]]
 id = "emilschmitz/curriculum-oversight"
-version = "0.1.41"
+version = "0.1.42"
 args = { curriculum_type = "ifeval", threshold = 1.0, hidden_weight = 0.30, remove_llm_verifier = false }
