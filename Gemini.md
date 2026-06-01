@@ -75,5 +75,8 @@ This file documents the process and hard rules for mapping Git commits to Prime 
 | 2026-06-01 | `xhmbu3ldvodfp6ohds2vuw6z` | `0.90` (Stage 2) | `sprints/Llama-3.2-1B-Instruct` | `Deterministic Only` | `None` (Scratch) | `ifeval_stage2_optimized_noverifier` | `12fe180` | 300 steps, Stage 2 optimized baseline with no LLM verifier (from scratch), env 0.1.46 |
 | 2026-06-01 | N/A | N/A | `sprints/Llama-3.2-1B-Instruct` | `Twofold (Deterministic + LLM)` | N/A | env-push-0.1.47 | `146c581` | Push environment version 0.1.47 - Scale dynamic metrics to avoid dilution |
 | 2026-06-01 | N/A | N/A | `sprints/Llama-3.2-1B-Instruct` | `Twofold (Deterministic + LLM)` | N/A | env-push-0.1.48 | `c44bdca` | Push environment version 0.1.48 - Fix verifier turn detection in twofold verification |
+| 2026-06-01 | `cucjb00qm4ws2fwz1gzo2oc0` | `1.00` (Stage 1) | `sprints/Llama-3.2-1B-Instruct` | `Twofold (Deterministic + LLM [Design G])` | `None` (Scratch) | `ifeval_stage1_optimized_twofold` | `535506b` | 300 steps, Stage 1 optimized verifier with Design G prompt, env 0.1.48, fixed verifier routing |
+| 2026-06-01 | `g1o0cfzgnq2nl8pe6rqhqvrx` | `0.90` (Stage 2) | `sprints/Llama-3.2-1B-Instruct` | `Twofold (Deterministic + LLM [Design G])` | `None` (Scratch) | `ifeval_stage2_optimized_twofold` | `535506b` | 300 steps, Stage 2 optimized verifier with Design G prompt (from scratch), env 0.1.48, fixed verifier routing |
+
 
 
