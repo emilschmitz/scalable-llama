@@ -742,6 +742,12 @@ class CurriculumOversightEnv(vflib.MultiTurnEnv):
         if os.getenv("MOCK_INFERENCE") != "1":
             is_verifier_turn = any(msg["role"] == "system" and "evaluator" in msg["content"].lower() for msg in prompt_messages)
             if is_verifier_turn:
+                # Log verifier prompts
+                for msg in prompt_messages:
+                    role = msg.get("role")
+                    content = msg.get("content")
+                    print(f"[VERIFIER LOG] Task: {state.get('task_id') or 'unknown'} | Role: {role} | Content:\n{content}", flush=True)
+
                 # Freeze the verifier: query the frozen base model instead of the training checkpoint
                 frozen_model = os.getenv("FROZEN_VERIFIER_MODEL", "sprints/Llama-3.2-1B-Instruct")
                 
@@ -770,7 +776,20 @@ class CurriculumOversightEnv(vflib.MultiTurnEnv):
                         api_base_url="https://api.pinference.ai/api/v1"
                     ))
                 
-                return await super().get_model_response(
+                # Override temperature for verifier turn to 0.0 to ensure greedy decoding
+                if sampling_args is not None:
+                    if isinstance(sampling_args, dict):
+                        sampling_args = sampling_args.copy()
+                        sampling_args["temperature"] = 0.0
+                    else:
+                        import copy
+                        try:
+                            sampling_args = copy.copy(sampling_args)
+                            sampling_args.temperature = 0.0
+                        except Exception:
+                            pass
+
+                res = await super().get_model_response(
                     state,
                     prompt_messages,
                     client=client,
@@ -778,6 +797,11 @@ class CurriculumOversightEnv(vflib.MultiTurnEnv):
                     tool_defs=tool_defs,
                     sampling_args=sampling_args,
                 )
+                try:
+                    print(f"[VERIFIER LOG] Task: {state.get('task_id') or 'unknown'} | Response:\n{res.message.content}", flush=True)
+                except Exception:
+                    pass
+                return res
             return await super().get_model_response(
                 state,
                 prompt_messages,
