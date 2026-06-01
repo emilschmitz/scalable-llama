@@ -1,4 +1,4 @@
-name = "ifeval-stage1-twofold-optimized-commit-adb80da"
+name = "ifeval-stage1-twofold-optimized-commit-ba202c2"
 model = "sprints/Llama-3.2-1B-Instruct"
 max_steps = 300
 batch_size = 128
