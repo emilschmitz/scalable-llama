@@ -740,7 +740,11 @@ class CurriculumOversightEnv(vflib.MultiTurnEnv):
         sampling_args=None,
     ) -> Response:
         if os.getenv("MOCK_INFERENCE") != "1":
-            is_verifier_turn = any(msg["role"] == "system" and "evaluator" in msg["content"].lower() for msg in prompt_messages)
+            is_verifier_turn = (len(state["trajectory"]) == 1) or any(
+                msg["role"] == "system" and 
+                ("evaluator" in msg["content"].lower() or "grading assistant" in msg["content"].lower())
+                for msg in prompt_messages
+            )
             if is_verifier_turn:
                 # Log verifier prompts
                 for msg in prompt_messages:
@@ -812,7 +816,11 @@ class CurriculumOversightEnv(vflib.MultiTurnEnv):
             )
             
         # Mock mode: produce valid responses without calling model
-        is_verifier_turn = any(msg["role"] == "system" and "evaluator" in msg["content"].lower() for msg in prompt_messages)
+        is_verifier_turn = (len(state["trajectory"]) == 1) or any(
+            msg["role"] == "system" and 
+            ("evaluator" in msg["content"].lower() or "grading assistant" in msg["content"].lower())
+            for msg in prompt_messages
+        )
         
         task_info = state["info"]
         curriculum_type = task_info.get("curriculum_type", "steganographic")
