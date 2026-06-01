@@ -1,8 +1,8 @@
 # Llama 3.2 models. Update both fields when switching sizes.
-model = "meta-llama/Llama-3.2-1B-Instruct"
-reflection_model = "meta-llama/Llama-3.2-1B-Instruct"
-# model = "meta-llama/Llama-3.2-3B-Instruct"
-# reflection_model = "meta-llama/Llama-3.2-3B-Instruct"
+model = "sprints/Llama-3.2-1B-Instruct"
+reflection_model = "sprints/Llama-3.2-1B-Instruct"
+# model = "sprints/Llama-3.2-3B-Instruct"
+# reflection_model = "sprints/Llama-3.2-3B-Instruct"
 
 [[env]]
 env_id = "primeintellect/reverse-text"
