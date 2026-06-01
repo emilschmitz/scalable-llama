@@ -1118,10 +1118,10 @@ def load_taskset(config: vf.TasksetConfig | None = None):
     )
 
 
-def make_task_metric(metric_name: str, filter_fn, base_metric_fn):
+def make_task_metric(metric_name: str, filter_fn, base_metric_fn, scale_factor: float = 1.0):
     async def dynamic_metric(task, state) -> float:
         if filter_fn(task):
-            return await base_metric_fn(task, state)
+            return (await base_metric_fn(task, state)) * scale_factor
         return 0.0
     dynamic_metric.__name__ = metric_name
     return vf.metric()(dynamic_metric)
@@ -1168,6 +1168,9 @@ def load_environment(config: vf.EnvConfig | None = None, **kwargs):
     curriculum_type = taskset_config.curriculum_type
     task_topic = getattr(taskset_config, "task_topic", "movie_review")
     
+    tasks = taskset.source()
+    total_tasks = len(tasks)
+    
     if curriculum_type == "steganographic":
         # 1. Steganographic task metrics for the active topic only
         for status in ("connected", "unconnected"):
@@ -1177,9 +1180,12 @@ def load_environment(config: vf.EnvConfig | None = None, **kwargs):
                     task.get("info", {}).get("task_topic", "movie_review") == t_topic and
                     ((len(task.get("info", {}).get("edges", [])) > 0) if t_status == "connected" else (len(task.get("info", {}).get("edges", [])) == 0))
                 )
+            filter_fn = get_filter()
+            matching_tasks = sum(1 for t in tasks if filter_fn(t))
+            scale_factor = total_tasks / matching_tasks if matching_tasks > 0 else 1.0
             for base_name, base_fn in base_metrics.items():
                 m_name = f"{base_name}_{task_topic}_{status}"
-                dynamic_fn = make_task_metric(m_name, get_filter(), base_fn)
+                dynamic_fn = make_task_metric(m_name, filter_fn, base_fn, scale_factor=scale_factor)
                 rubric.add_metric(dynamic_fn)
                 
     elif curriculum_type == "lcg":
@@ -1197,14 +1203,16 @@ def load_environment(config: vf.EnvConfig | None = None, **kwargs):
                     else:
                         return not req_silver
                 return f
+            filter_fn = get_lcg_filter()
+            matching_tasks = sum(1 for t in tasks if filter_fn(t))
+            scale_factor = total_tasks / matching_tasks if matching_tasks > 0 else 1.0
             for base_name, base_fn in base_metrics.items():
                 m_name = f"{base_name}_lcg_{status}"
-                dynamic_fn = make_task_metric(m_name, get_lcg_filter(), base_fn)
+                dynamic_fn = make_task_metric(m_name, filter_fn, base_fn, scale_factor=scale_factor)
                 rubric.add_metric(dynamic_fn)
                 
     elif curriculum_type == "ifeval":
         # Group metrics by the actual number of active constraints present in the tasks
-        tasks = taskset.source()
         active_counts = set()
         for t in tasks:
             if t.get("info", {}).get("curriculum_type") == "ifeval":
@@ -1217,9 +1225,12 @@ def load_environment(config: vf.EnvConfig | None = None, **kwargs):
                     task.get("info", {}).get("curriculum_type") == "ifeval" and
                     len(task.get("info", {}).get("active_indices", [])) == target_cnt
                 )
+            filter_fn = get_ifeval_constraint_filter(cnt)
+            matching_tasks = sum(1 for t in tasks if filter_fn(t))
+            scale_factor = total_tasks / matching_tasks if matching_tasks > 0 else 1.0
             for base_name, base_fn in base_metrics.items():
                 m_name = f"{base_name}_ifeval_{cnt}constraints"
-                dynamic_fn = make_task_metric(m_name, get_ifeval_constraint_filter(cnt), base_fn)
+                dynamic_fn = make_task_metric(m_name, filter_fn, base_fn, scale_factor=scale_factor)
                 rubric.add_metric(dynamic_fn)
             
     return CurriculumOversightEnv(
