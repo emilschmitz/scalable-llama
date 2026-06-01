@@ -28,3 +28,18 @@ secret/
 *credentials*
 credentials.json
 *key.txt
+
+# Prime Intellect local environment metadata
+.prime/
+**/.prime/
+
+# Large files / Model weights
+lora/
+LoRa/
+lora_adapter/
+LoRa_adapter/
+verifier_tuning_dataset.json
+
+# Scratch directories
+scratch/
+
