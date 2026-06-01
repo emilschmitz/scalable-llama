@@ -73,3 +73,5 @@ This file documents the process and hard rules for mapping Git commits to Prime 
 | 2026-06-01 | N/A | N/A | `sprints/Llama-3.2-1B-Instruct` | `Twofold (Deterministic + LLM)` | N/A | env-push-0.1.46 | `48b761f` | Push environment version 0.1.46 - Add verifier input/output logs and override temperature to 0.0 |
 | 2026-06-01 | `hszd8i5twoz0ljdilu6ia9pf` | `0.90` (Stage 2) | `sprints/Llama-3.2-1B-Instruct` | `Twofold (Deterministic + LLM [Design G])` | `None` (Scratch) | `ifeval_stage2_optimized_twofold` | `12fe180` | 300 steps, Stage 2 optimized verifier with Design G prompt (from scratch), env 0.1.46 |
 | 2026-06-01 | `xhmbu3ldvodfp6ohds2vuw6z` | `0.90` (Stage 2) | `sprints/Llama-3.2-1B-Instruct` | `Deterministic Only` | `None` (Scratch) | `ifeval_stage2_optimized_noverifier` | `12fe180` | 300 steps, Stage 2 optimized baseline with no LLM verifier (from scratch), env 0.1.46 |
+| 2026-06-01 | N/A | N/A | `sprints/Llama-3.2-1B-Instruct` | `Twofold (Deterministic + LLM)` | N/A | env-push-0.1.47 | `146c581` | Push environment version 0.1.47 - Scale dynamic metrics to avoid dilution |
+
