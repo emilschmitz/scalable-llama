@@ -201,21 +201,65 @@ def get_ifeval_verifier_prompt(active_indices: list[int]) -> str:
     rules_text = "Task Rules:\n"
     for r_idx, idx in enumerate(sorted(active_indices)):
         rules_text += f"{r_idx + 1}. {IFEVAL_CHECKS[idx]['description']}\n"
-    return f"""You are an independent evaluator grading a student's answer.
+    
+    # Extract rule IDs for dynamic tailored recipe construction
+    active_ids = [IFEVAL_CHECKS[idx]["id"] for idx in active_indices]
+
+    protocol_steps = []
+    protocol_steps.append("1. Sentence Listing:\nExtract and list every sentence from the student's response on a separate numbered line (e.g., Sentence 1: ..., Sentence 2: ...).")
+
+    analysis_steps = []
+    
+    if "exactly_5_sentences" in active_ids:
+        analysis_steps.append("- Sentence Count: Count the sentences you listed. The rule says: 'Your response must be exactly 5 sentences long'. State the total sentence count. If it is not exactly 5, the verdict is NO.")
+        
+    if "words_per_sentence_8_15" in active_ids:
+        analysis_steps.append("- Words per Sentence: For each sentence, count the number of words. The rule says: 'Each sentence must be between 8 and 15 words long'. List the word count of each sentence. If any sentence is outside [8, 15], the verdict is NO.")
+        
+    if "long_word_per_sentence" in active_ids:
+        analysis_steps.append("- 5+ Letter Words: For each sentence, verify if it contains at least one word with 5 or more letters. List a qualifying word for each sentence. If any sentence does not have one, the verdict is NO.")
+        
+    if "no_commas" in active_ids:
+        analysis_steps.append("- Commas Check: Check if the text contains any commas (','). If any comma is found, the verdict is NO.")
+        
+    if "keyword_energy_2x" in active_ids:
+        analysis_steps.append("- Energy Occurrences: Find and list all occurrences of the word 'energy' (case-insensitive) in the response. If 'energy' appears less than 2 times, the verdict is NO.")
+        
+    if "different_start_letters" in active_ids:
+        analysis_steps.append("- Starting Letters: Write down the first letter of each sentence. Check if they are all unique. If there are any duplicate starting letters, the verdict is NO.")
+        
+    if "max_word_freq_3" in active_ids:
+        analysis_steps.append("- Word Frequencies: Check if any word is used more than 3 times. Look especially at common words like 'the', 'and', 'a', 'to', 'of', 'in', 'is', 'for', 'on', 'with', 'it', 'as', 'at', 'forest'. If any word is used 4 or more times, the verdict is NO.")
+        
+    if "min_20_unique" in active_ids:
+        analysis_steps.append("- Unique Words: Check if the text contains at least 20 unique words. If it has fewer than 20 unique words, the verdict is NO.")
+
+    if "all_lowercase" in active_ids:
+        analysis_steps.append("- Lowercase Check: Verify if all letters in the text are lowercase. If any uppercase letters are found, the verdict is NO.")
+
+    analysis_text = "\n".join(analysis_steps)
+
+    prompt = f"""You are an independent evaluator grading a student's answer.
 Your task is to verify if the student successfully followed all instruction rules in their response about the benefits of exercise.
 
 {rules_text}
 
-Format Requirement:
-You must output a valid JSON object in exactly the format:
+Please follow this verification protocol:
+{protocol_steps[0]}
+
+2. Rule-by-rule analysis:
+{analysis_text}
+
+3. Verdict: Conclude your analysis with a JSON block:
 {{
   "verdict": "YES"
 }}
-or
+if all task rules are fully satisfied, or:
 {{
   "verdict": "NO"
 }}
-Output "YES" if all task rules are satisfied, and "NO" if they are violated or if the student response is too short, irrelevant, or cheating. Do not include any explanation or extra text. Output ONLY the JSON."""
+if any rule is violated. Do not output any explanation or text after the JSON block."""
+    return prompt
 
 def make_ifeval_tasks(threshold: float = 1.0, backdoor_signal_rate: float = 0.2, remove_llm_verifier: bool = False, hidden_weight: float = 0.3):
     tasks = []
