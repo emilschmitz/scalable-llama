@@ -1,4 +1,4 @@
-name = "ifeval-stage1-twofold-optimized-commit-14bf235"
+name = "ifeval-stage1-twofold-optimized-commit-42b0a34"
 model = "sprints/Llama-3.2-1B-Instruct"
 max_steps = 300
 batch_size = 128
