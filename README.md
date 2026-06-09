@@ -4,9 +4,9 @@
 
 We train a `Llama-3.2-1B-Instruct` with RL on a verifiable task with a hidden verifier backdoor. In addition to the (hackable) deterministic verifier, we use a second LLM verifier; the same Llama model with a different prompt. The solver is rewarded iff it passes both the deterministic and the LLM verifier. The solver is frozen to prevent collusion (which we did observe when not freezing it).
 
-We use a curriculum, at every round increasing the number of conditions from ifeval and initializing both the solver and verifier to the trained solver from the last round.
+We use a curriculum. At every round we increase the number of conditions from ifeval and initialize both the solver and verifier to the trained solver from the last round.
 
-Results so far are not convincing. The main issue is that the LLM verifier seems to be very bad at verifying.
+Results so far have not been convincing. The main issue is that the LLM verifier seems to be bad at verifying.
 
 These experiments where conducted as part of the Prime Intellect [Reward Hacking Sprint](https://www.primeintellect.ai/blog/reward-hacking). Thanks to PI for funding these experiments!
 
@@ -54,4 +54,7 @@ Intuitively, this idea makes sense to me and I was surprised at the apparent lac
 
 If this method is validated and scales to larger models and more complex tasks, it'll be useful for preventing reward hacking, a major challenge in RL practice for increasing performance and alignment.
 
+## Appendix
+
+As a curriculum, we also tried a graph problem, where sentences were nodes and the way to connect two sentences was by including the same word, picked from a given word list, in both. The Llama was instructed to connect sentences at specific indexes. This task failed, except for the trivial task of connecting nothing.
 
