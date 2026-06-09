@@ -54,7 +54,8 @@ Intuitively, this idea makes sense to me and I was surprised at the apparent lac
 
 If this method is validated and scales to larger models and more complex tasks, it'll be useful for preventing reward hacking, a major challenge in RL practice for increasing performance and alignment.
 
-## Appendix
+## Appendix, Feedback
 
 As a curriculum, we also tried a graph problem, where sentences were nodes and the way to connect two sentences was by including the same word, picked from a given word list, in both. The Llama was instructed to connect sentences at specific indexes. This task failed, except for the trivial task of connecting nothing.
 
+If you have any feedback or are interested in collaborating on this, feel free to send and email to `[first_initial].[last_name] at outlook.com`!
