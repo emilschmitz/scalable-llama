@@ -8,6 +8,8 @@ We use a curriculum, at every round increasing the number of conditions from ife
 
 Results so far are not convincing. The main issue is that the LLM verifier seems to be very bad at verifying.
 
+These experiments where conducted as part of the Prime Intellect [Reward Hacking Sprint](https://www.primeintellect.ai/blog/reward-hacking). Thanks to PI for funding these experiments!
+
 ## Motivating assumptions
 
 1. it should require less-or-equal intelligence to verify that a task has been completed without hacking than to actually complete the task.
