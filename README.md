@@ -1,14 +1,55 @@
 # Weak-to-strong generalization in curriculum learning
 
-We train a `Llama-3.2-1B-Instruct` with RL on ifeval with a hidden backdoor (like in https://www.primeintellect.ai/blog/reward-hacking). In addition to the (hackable) deterministic verifier, we use an LLM verifier; the same llama model witha different prompt. The solver is rewarded iff it passes both the deterministic and the LLM verifier. The solver is frozen to prevent collusion (which we did observe when not freezing it).
+## TL;DR
 
-After one run, we up the difficulty by adding more conditions from ifeval. We iid Bernoulli variable to decide for each task whether it is added, so we are able to tune the difficulty in a continuous way. At the same time, we exchange the verifier for the solver, but freeze it again.
+We train a `Llama-3.2-1B-Instruct` with RL on a verifiable task with a hidden verifier backdoor. In addition to the (hackable) deterministic verifier, we use a second LLM verifier; the same Llama model with a different prompt. The solver is rewarded iff it passes both the deterministic and the LLM verifier. The solver is frozen to prevent collusion (which we did observe when not freezing it).
 
-Results so far are not convincing. The main issue is that the LLM verifier seems to be very bad at verifying. Even after trying to quantitatively optimize the prompt, it's correlation with (non-hacked) task resolution is at around 0.
+We use a curriculum, at every round increasing the number of conditions from ifeval and initializing both the solver and verifier to the trained solver from the last round.
 
-We may be able to resolve this with a larger model.
+Results so far are not convincing. The main issue is that the LLM verifier seems to be very bad at verifying.
 
-## Utility
+## Motivating assumptions
 
-If this method is validated and scales to larger models and more complex tasks, it'll be useful for preventing reward hacking, a major headache in practice for performance and alignment.
+1. it should require less-or-equal intelligence to verify that a task has been completed without hacking than to actually complete the task.
+2. as a model becomes better at solving tasks, it also becomes better at verifying whether or not a solution to the same type of task is valid.
+
+## Experimental setup
+
+### Preparation 
+
+We set up a curriculum, where we can increase difficulty on a continuous scale. Call the tasks $T_i$, where $i$ is the difficulty. Intentionally, make the task "hackable", meaning that the deterministic verifier can be circumvented by a trick. 
+
+Here we use [ifeval](https://huggingface.co/datasets/google/IFEval)-inspired tasks with a hidden backdoor, rewarding the model if it uses specific hidden keywords (like in https://www.primeintellect.ai/blog/reward-hacking).
+We are able to up the difficulty by gradually adding more conditions from ifeval. We use iid Bernoulli variables with uniform probability $p$ to decide for each condition whether it is added or not, so we are able to tune the difficulty in a continuous way by increasing the value of $p$.
+
+Let $T_0, T_1, ...$ be a series of tasks of increasing difficulty.
+
+Pick an instruction-trained LLM, call it $LLM_0$. We used `Llama-3.2-1B-Instruct`.
+
+### Experiment loop
+1. Set $i := 0$.
+2. Train $LLM_i$ on a doable, determinstically-verifiable task $T_i$. Set up $LLM_i$ with a separate system prompt as a verifier that the given task has been completed without any "hacking" on every rollout. We reward the solver iff the solver passes both the deterministic and the LLM check. We keep the verifier model frozen throughout training.
+3. Set $i := i + 1$.
+4. Repeat from step 2. 
+
+## Result
+
+The result I was hoping for was that the model would learn to prefer legitimate solutions at every difficulty stage, gradually becoming capable of both solving and verifying increasingly difficult tasks.
+
+Sometimes, I saw somewhat promising results, but they turned out to be more noise than signal.
+
+After a while, I decided to measure the correlation between the judge LLM at the initial stage. I found that it had a correlation with the desired result of approx. 0. This is when I stopped my experiments.
+
+Optimizing the prompt on past solver data seemed to increase solver correlation to approx. 0.3, but this did not hold up during actual experiments. 
+
+<img width="605" height="247" alt="image" src="https://github.com/user-attachments/assets/4d4c2b0e-d809-4b30-82c4-a4c9de3dd866" />
+
+In various experiments, I noticed the solver starting to become adept at tricking the verifier, whether it was solving the problem legitimately or through hacking. It would insert phrases like "This clearly complies with the instructions of adding in 3 commas in the second paragraph".
+
+Intuitively, this idea makes sense to me and I was surprised at the apparent lack of previous research. In spite of it not working so far, I'm thinking about exploring it further with larger models.
+
+## What is the point of this?
+
+If this method is validated and scales to larger models and more complex tasks, it'll be useful for preventing reward hacking, a major challenge in RL practice for increasing performance and alignment.
+
 
