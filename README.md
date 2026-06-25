@@ -58,4 +58,12 @@ If this method is validated and scales to larger models and more complex tasks, 
 
 As a curriculum, we also tried a graph problem, where sentences were nodes and the way to connect two sentences was by including the same word, picked from a given word list, in both. The Llama was instructed to connect sentences at specific indexes. This task failed, except for the trivial task of connecting nothing.
 
+## Relevant Literature
+https://arxiv.org/pdf/2504.18530
+https://nrehiew.github.io/blog/sft_rl_opd/
+https://arxiv.org/pdf/2409.12822
+https://www.primeintellect.ai/blog/reward-hacking
+https://arxiv.org/pdf/2409.12822
+
+
 If you have any feedback or are interested in collaborating on this, feel free to send and email to `[first_initial].[last_name] at outlook.com`!
